@@ -5,13 +5,23 @@ var SandboxedModule = require('sandboxed-module');
 SandboxedModule.registerBuiltInSourceTransformer('istanbul');
 var HttpProvider = SandboxedModule.require('../lib/web3/httpprovider', {
     requires: {
-        'xhr2': require('./helpers/FakeXHR2'),
+        'xhr2-cookies': require('./helpers/FakeXHR2'),
         'xmlhttprequest': require('./helpers/FakeXMLHttpRequest')
     },
     singleOnly: true
 });
 
 describe('lib/web3/httpprovider', function () {
+    describe('prepareRequest', function () {
+        it('should set request header', function () {
+            var provider = new HttpProvider('http://localhost:8545', 0 , null, null, [{name: 'Access-Control-Allow-Origin',  value: '*'}]);
+            var result = provider.prepareRequest(true);
+
+            assert.equal(typeof result, 'object');
+            assert.equal(result.headers['Access-Control-Allow-Origin'], '*');
+        });
+    });
+
     describe('send', function () {
         it('should send basic request', function () {
             var provider = new HttpProvider();
